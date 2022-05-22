@@ -29,6 +29,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -51,7 +52,7 @@ public class VideoFilesAdapter extends RecyclerView.Adapter<VideoFilesAdapter.Vi
     private List<MediaFiles> videoList;
     private Context context;
     private BottomSheetDialog bottomSheetDialog;
-    double milliSeconds ;
+
 
     public VideoFilesAdapter(List<MediaFiles> videoList, Context context) {
         this.videoList = videoList;
@@ -71,7 +72,7 @@ public class VideoFilesAdapter extends RecyclerView.Adapter<VideoFilesAdapter.Vi
         holder.videoName.setText(videoList.get(position).getDisplayName());
         String size=videoList.get(position).getSize();
         holder.videoSize.setText(android.text.format.Formatter.formatFileSize(context, Long.parseLong(size)));
-
+        double milliSeconds =0;
         try{
             milliSeconds= Double.parseDouble(videoList.get(position).getDuration());
             holder.videoDuration.setText(timeConversion((long) milliSeconds));
@@ -86,6 +87,7 @@ public class VideoFilesAdapter extends RecyclerView.Adapter<VideoFilesAdapter.Vi
                 .into(holder.thumbnail);
 
 
+        double finalMilliSeconds = milliSeconds;
         holder.menuMore.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -158,8 +160,12 @@ public class VideoFilesAdapter extends RecyclerView.Adapter<VideoFilesAdapter.Vi
                bsView.findViewById(R.id.bs_share).setOnClickListener(new View.OnClickListener() {
                    @Override
                    public void onClick(View view) {
-                       Uri uri=Uri.parse(videoList.get(position).getPath());
+                      // Uri uri=Uri.parse(videoList.get(position).getPath());
+                      // Uri uri=Uri.fromFile(new File(videoList.get(position).getPath()));
+                       Uri uri= FileProvider.getUriForFile(context,BuildConfig.APPLICATION_ID+".provider",new File(videoList.get(position).getPath()));
                        Intent shareIntent=new Intent(Intent.ACTION_SEND);
+
+                       shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                        shareIntent.setType("video/*");
                        shareIntent.putExtra(Intent.EXTRA_STREAM,uri);
                        context.startActivity(Intent.createChooser(shareIntent,"Share Video"));
@@ -218,7 +224,7 @@ public class VideoFilesAdapter extends RecyclerView.Adapter<VideoFilesAdapter.Vi
                        String two="path: "+path.substring(0,indexPath);
                        String three="Size : "+android.text.format.Formatter.formatFileSize(context, Long.parseLong(videoList.get(position).getSize()));
 
-                       String four="Length : "+timeConversion((long) milliSeconds);
+                       String four="Length : "+timeConversion((long) finalMilliSeconds);
                        String nameWithFormat=videoList.get(position).getDisplayName();
                        int index=nameWithFormat.lastIndexOf(".");
                        String format=nameWithFormat.substring(index+1);
