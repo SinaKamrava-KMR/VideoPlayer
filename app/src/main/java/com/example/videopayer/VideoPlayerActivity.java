@@ -3,6 +3,7 @@ package com.example.videopayer;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -13,9 +14,11 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.media.MediaMetadataRetriever;
 
 import android.media.audiofx.AudioEffect;
+import android.media.audiofx.Equalizer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -25,11 +28,14 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bullhead.equalizer.EqualizerFragment;
+import com.bullhead.equalizer.Settings;
 import com.developer.filepicker.controller.DialogSelectionListener;
 import com.developer.filepicker.model.DialogConfigs;
 import com.developer.filepicker.model.DialogProperties;
@@ -103,6 +109,7 @@ public class VideoPlayerActivity extends AppCompatActivity implements View.OnCli
 
     private PictureInPictureParams.Builder pictureInPicture;
     private boolean isCrossChecked;
+    private FrameLayout eqContainer;
     //horizontal recycler variables
 
     @Override
@@ -116,6 +123,7 @@ public class VideoPlayerActivity extends AppCompatActivity implements View.OnCli
         title = findViewById(R.id.video_title);
         nextButton = findViewById(R.id.exo_next);
         previousButton = findViewById(R.id.exo_prev);
+        eqContainer=findViewById(R.id.eqFrame);
 
         //==============
 
@@ -225,13 +233,27 @@ public class VideoPlayerActivity extends AppCompatActivity implements View.OnCli
                 }
                 //Equalizer
                 if (position == 3) {
-                    Intent intent = new Intent(AudioEffect.ACTION_DISPLAY_AUDIO_EFFECT_CONTROL_PANEL);
-                    if ((intent).resolveActivity(getPackageManager()) != null) {
-                        startActivityForResult(intent, 123);
-                    } else {
-                        Toast.makeText(VideoPlayerActivity.this, "No Equalizer Found", Toast.LENGTH_SHORT).show();
+
+
+
+                    if (eqContainer.getVisibility()==View.GONE){
+                        eqContainer.setVisibility(View.VISIBLE);
                     }
+
+                    final  int sessionId=player.getAudioSessionId();
+                    Settings.isEditing =false;
+                    EqualizerFragment equalizerFragment=EqualizerFragment.newBuilder()
+                            .setAccentColor(Color.parseColor("#197BCA"))
+                            .setAudioSessionId(sessionId)
+                            .build();
+
+                    getSupportFragmentManager().beginTransaction().replace(R.id.eqFrame,equalizerFragment)
+                    .commit();
+
                     iconsAdapter.notifyDataSetChanged();
+
+
+
 
 
                 }
@@ -476,10 +498,23 @@ public class VideoPlayerActivity extends AppCompatActivity implements View.OnCli
 
     @Override
     public void onBackPressed() {
-        if (player.isPlaying()) {
-            player.stop();
+//        if (player.isPlaying()) {
+//            player.stop();
+//        }
+//        super.onBackPressed();
+        Fragment fragment= getSupportFragmentManager().findFragmentById(R.id.eqFrame);
+        if (eqContainer.getVisibility()==View.GONE){
+            super.onBackPressed();
+        }else {
+            if (fragment.isVisible() && eqContainer.getVisibility()==View.VISIBLE){
+                eqContainer.setVisibility(View.GONE);
+            }else {
+                if (player!=null){
+                    player.release();
+                }
+                super.onBackPressed();
+            }
         }
-        super.onBackPressed();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
