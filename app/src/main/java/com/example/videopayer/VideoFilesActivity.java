@@ -33,7 +33,7 @@ import java.util.List;
 
 public class VideoFilesActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
 
-    private static final String MY_PREF = "my_pref";
+    public static final String MY_PREF = "my_pref";
     private RecyclerView recyclerView;
     private ArrayList<MediaFiles> videoFilesList=new ArrayList<>();
     private VideoFilesAdapter adapter;
@@ -48,6 +48,12 @@ public class VideoFilesActivity extends AppCompatActivity implements SearchView.
 
         recyclerView=findViewById(R.id.videos_rv);
         folderName=getIntent().getStringExtra("folderName");
+
+        SharedPreferences.Editor editor=getSharedPreferences(MY_PREF,MODE_PRIVATE).edit();
+        editor.putString("playListFolderName",folderName);
+        editor.apply();
+
+
         getSupportActionBar().setTitle(folderName);
         swipeRefreshLayout=findViewById(R.id.swipe_refresh_videos);
         showVideoFiles();
@@ -65,7 +71,7 @@ public class VideoFilesActivity extends AppCompatActivity implements SearchView.
 
     private void showVideoFiles() {
         videoFilesList=fetchMedia(folderName);
-        adapter=new VideoFilesAdapter(videoFilesList,this);
+        adapter=new VideoFilesAdapter(videoFilesList,this,0);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this,RecyclerView.VERTICAL,false));
         adapter.notifyDataSetChanged();

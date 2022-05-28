@@ -63,4 +63,7 @@ dependencies {
     //file Picker
     implementation 'com.github.TutorialsAndroid:FilePicker:v8.0.19'
 
+    //Equalizer
+    implementation 'com.github.bullheadandplato:AndroidEqualizer:2.2'
+
 }

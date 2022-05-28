@@ -13,6 +13,7 @@
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
        <item name="android:navigationBarColor">@color/allow_color</item>
+
     </style>
     <style name="BottomSheetTheme" parent="Theme.Design.BottomSheetDialog">
         <item name="bottomSheetStyle">@style/BottomSheetStyle</item>
@@ -22,5 +23,12 @@
 
     <style name="BottomSheetStyle" parent="Widget.Design.BottomSheet.Modal">
         <item name="android:background">@android:color/transparent</item>
+    </style>
+
+    <style name="MyTransparentBottomSheetDialogTheme" parent="Theme.VideoPayer">
+        <item name="android:background">@android:color/transparent</item>
+        <item name="background">@android:color/transparent</item>
+        <item name="android:colorBackground">@android:color/transparent</item>
+
     </style>
 </resources>
